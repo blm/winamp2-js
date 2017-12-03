@@ -1,14 +1,18 @@
-import { cdnUrl } from "../package.json";
 import { parser, creator } from "winamp-eqf";
 import MyFile from "./myFile";
 import skinParser from "./skinParser";
 import { BANDS } from "./constants";
 import { getEqfData } from "./selectors";
 
-import { clamp, base64FromArrayBuffer, downloadURI, normalize } from "./utils";
+import {
+  clamp,
+  base64FromArrayBuffer,
+  downloadURI,
+  normalize,
+  sort
+} from "./utils";
 import {
   CLOSE_WINAMP,
-  LOAD_AUDIO_FILE,
   LOAD_AUDIO_URL,
   OPEN_FILE_DIALOG,
   SEEK_TO_PERCENT_COMPLETE,
@@ -23,20 +27,24 @@ import {
   SET_EQ_ON,
   SET_EQ_OFF,
   TOGGLE_EQUALIZER_SHADE_MODE,
-  CLOSE_EQUALIZER_WINDOW
+  CLOSE_EQUALIZER_WINDOW,
+  REMOVE_TRACKS,
+  PLAY,
+  PAUSE,
+  REVERSE_LIST,
+  RANDOMIZE_LIST,
+  SET_TRACK_ORDER,
+  TOGGLE_VISUALIZER_STYLE
 } from "./actionTypes";
 
 export function play() {
-  return (dispatch, getState) => {
-    const { status } = getState().media;
-    dispatch({ type: status === "PLAYING" ? "STOP" : "PLAY" });
-  };
+  return { type: PLAY };
 }
 
 export function pause() {
   return (dispatch, getState) => {
     const { status } = getState().media;
-    dispatch({ type: status === "PLAYING" ? "PAUSE" : "PLAY" });
+    dispatch({ type: status === "PLAYING" ? PAUSE : PLAY });
   };
 }
 
@@ -105,7 +113,6 @@ function setEqFromFile(file) {
       const eqf = parser(arrayBuffer);
       const preset = eqf.presets[0];
 
-      // TODO: Fix normalize. Currently these numbers are kinda wrong.
       dispatch(setPreamp(normalize(preset.preamp)));
       BANDS.forEach(band => {
         dispatch(setEqBand(band, normalize(preset[`hz${band}`])));
@@ -125,14 +132,19 @@ export function loadFileFromReference(fileReference) {
     } else if (EQF_FILENAME_MATCHER.test(fileReference.name)) {
       dispatch(setEqFromFile(file));
     } else {
-      dispatch({ type: LOAD_AUDIO_FILE, file });
+      dispatch({
+        type: LOAD_AUDIO_URL,
+        url: URL.createObjectURL(fileReference),
+        name: fileReference.name,
+        autoPlay: true
+      });
     }
   };
 }
 
-export function loadMediaFromUrl(url, name) {
+export function loadMediaFromUrl(url, name, autoPlay) {
   return dispatch => {
-    dispatch({ type: LOAD_AUDIO_URL, url, name });
+    dispatch({ type: LOAD_AUDIO_URL, url, name, autoPlay });
   };
 }
 
@@ -144,7 +156,9 @@ export function setSkinFromFile(skinFile) {
       type: SET_SKIN_DATA,
       skinImages: skinData.images,
       skinColors: skinData.colors,
-      skinPlaylistStyle: skinData.playlistStyle
+      skinPlaylistStyle: skinData.playlistStyle,
+      skinCursors: skinData.cursors,
+      skinRegion: skinData.region
     });
   };
 }
@@ -153,11 +167,6 @@ export function setSkinFromUrl(url) {
   const skinFile = new MyFile();
   skinFile.setUrl(url);
   return setSkinFromFile(skinFile);
-}
-
-export function setSkinFromFilename(filename) {
-  const url = `${cdnUrl}/skins/${filename}`;
-  return setSkinFromUrl(url);
 }
 
 export function openFileDialog(fileInput) {
@@ -231,4 +240,47 @@ export function toggleEqualizerShadeMode() {
 
 export function closeEqualizerWindow() {
   return { type: CLOSE_EQUALIZER_WINDOW };
+}
+
+export function cropPlaylist() {
+  return (dispatch, getState) => {
+    const { tracks } = getState();
+    dispatch({
+      type: REMOVE_TRACKS,
+      ids: Object.keys(tracks).filter(id => !tracks[id].selected)
+    });
+  };
+}
+
+export function removeSelectedTracks() {
+  return (dispatch, getState) => {
+    const { tracks } = getState();
+    dispatch({
+      type: REMOVE_TRACKS,
+      ids: Object.keys(tracks).filter(id => tracks[id].selected)
+    });
+  };
+}
+
+export function reverseList() {
+  return { type: REVERSE_LIST };
+}
+
+export function randomizeList() {
+  return { type: RANDOMIZE_LIST };
+}
+
+export function sortListByTitle() {
+  return (dispatch, getState) => {
+    const state = getState();
+    const trackOrder = sort(state.playlist.trackOrder, i => {
+      const { title, artist } = state.tracks[i];
+      return `${artist} - ${title}`.toLowerCase();
+    });
+    return dispatch({ type: SET_TRACK_ORDER, trackOrder });
+  };
+}
+
+export function toggleVisualizerStyle() {
+  return { type: TOGGLE_VISUALIZER_STYLE };
 }

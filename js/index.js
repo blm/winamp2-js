@@ -1,45 +1,51 @@
 import "babel-polyfill";
-import React from "react";
-import { render } from "react-dom";
-import { Provider } from "react-redux";
-
-import getStore from "./store";
-import App from "./components/App";
-import Browser from "./browser";
 import Winamp from "./winamp";
-import Hotkeys from "./hotkeys";
-import { skinUrl, audioUrl, hideAbout, initialState } from "./config";
+import Browser from "./browser";
+import base from "../skins/base-2.91.wsz";
+import osx from "../skins/MacOSXAqua1-5.wsz";
+import topaz from "../skins/TopazAmp1-2.wsz";
+import visor from "../skins/Vizor1-01.wsz";
+import xmms from "../skins/XMMS-Turquoise.wsz";
+import zaxon from "../skins/ZaxonRemake1-0.wsz";
+import green from "../skins/Green-Dimension-V2.wsz";
+import Raven from "raven-js";
 
-if (new Browser(window).isCompatible) {
-  if (hideAbout) {
-    document.getElementsByClassName("about")[0].style.visibility = "hidden";
+import {
+  hideAbout,
+  skinUrl,
+  audioUrl,
+  initialState,
+  sentryDsn
+} from "./config";
+
+Raven.config(sentryDsn).install();
+
+Raven.context(() => {
+  if (new Browser(window).isCompatible) {
+    if (hideAbout) {
+      document.getElementsByClassName("about")[0].style.visibility = "hidden";
+    }
+
+    new Winamp({
+      initialSkin: {
+        url: skinUrl
+      },
+      initialTrack: {
+        name: "1. DJ Mike Llama - Llama Whippin' Intro",
+        url: audioUrl
+      },
+      avaliableSkins: [
+        { url: base, name: "<Base Skin>" },
+        { url: green, name: "Green Dimension V2" },
+        { url: osx, name: "Mac OSX v1.5 (Aqua)" },
+        { url: topaz, name: "TopazAmp" },
+        { url: visor, name: "Vizor" },
+        { url: xmms, name: "XMMS Turquoise " },
+        { url: zaxon, name: "Zaxon Remake" }
+      ],
+      __initialState: initialState
+    }).render(document.getElementById("winamp2-js"));
+  } else {
+    document.getElementById("browser-compatibility").style.display = "block";
   }
-  const winamp = Winamp;
-
-  const store = getStore(winamp, initialState);
-  window.store = store;
-
-  render(
-    <Provider store={store}>
-      <App winamp={winamp} />
-    </Provider>,
-    document.getElementById("winamp2-js")
-  );
-
-  winamp.dispatch = store.dispatch;
-
-  winamp.init({
-    volume: 50,
-    balance: 0,
-    mediaFile: {
-      url: audioUrl,
-      name: "1. DJ Mike Llama - Llama Whippin' Intro"
-    },
-    skinUrl: skinUrl
-  });
-
-  new Hotkeys(winamp, store);
-} else {
-  document.getElementById("winamp").style.display = "none";
-  document.getElementById("browser-compatibility").style.display = "block";
-}
+});

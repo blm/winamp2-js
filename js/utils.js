@@ -39,13 +39,17 @@ export const parseViscolors = text => {
   return colors;
 };
 
-// Dumb ini parser that just gets all the key/value pairs
+const SECTION_REGEX = /^\s*\[(.+?)\]\s*$/;
+const PROPERTY_REGEX = /^\s*([^;].*)\s*=\s*(.*)\s*$/;
+
 export const parseIni = text => {
-  const lines = text.split(/[\r\n]+/g);
-  return lines.reduce((data, line) => {
-    if (line.includes("=")) {
-      const [key, value] = line.split("=");
-      data[key] = value;
+  let section, match;
+  return text.split(/[\r\n]+/g).reduce((data, line) => {
+    if ((match = line.match(PROPERTY_REGEX)) && section != null) {
+      data[section][match[1].trim().toLowerCase()] = match[2];
+    } else if ((match = line.match(SECTION_REGEX))) {
+      section = match[1].trim().toLowerCase();
+      data[section] = {};
     }
     return data;
   }, {});
@@ -68,10 +72,16 @@ export function downloadURI(uri, name) {
   window.document.body.removeChild(link);
 }
 
-export const rebound = (oldMin, oldMax, newMin, newMax) => oldValue =>
-  Math.round(
-    (oldValue - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin
-  );
+export const toPercent = (min, max, value) => (value - min) / (max - min);
+
+export const percentToRange = (percent, min, max) =>
+  min + Math.round(percent * (max - min));
+
+export const percentToIndex = (percent, length) =>
+  percentToRange(percent, 0, length - 1);
+
+const rebound = (oldMin, oldMax, newMin, newMax) => oldValue =>
+  percentToRange(toPercent(oldMin, oldMax, oldValue), newMin, newMax);
 
 // Convert a .eqf value to a 1-100
 export const normalize = rebound(1, 64, 1, 100);
@@ -94,14 +104,45 @@ export const merge = (target, source) => {
 
 // Maps a value in a range (defined my min/max) to a value in an array (options).
 export const segment = (min, max, value, newValues) => {
-  const ratio = (value - min) / (max - min);
+  const ratio = toPercent(min, max, value);
   /*
   | 0 | 1 | 2 |
   0   1   2   3
   */
-  const index = Math.min(
-    Math.floor(ratio * newValues.length),
-    newValues.length - 1 // Special case for 100%
-  );
-  return newValues[index];
+  return newValues[percentToIndex(ratio, newValues.length)];
 };
+
+export const arraysAreEqual = (a, b) =>
+  a.length === b.length && a.every((value, i) => value === b[i]);
+
+// https://bost.ocks.org/mike/shuffle/
+// Shuffle an array in O(n)
+export const shuffle = array => {
+  const sorted = [...array];
+  let m = sorted.length;
+
+  // While there remain elements to shuffle…
+  while (m) {
+    // Pick a remaining element…
+    const i = Math.floor(Math.random() * m--);
+
+    // And swap it with the current element.
+    const val = sorted[m];
+    sorted[m] = sorted[i];
+    sorted[i] = val;
+  }
+
+  return sorted;
+};
+
+export const sort = (array, iteratee) =>
+  [...array].sort((a, b) => {
+    const aKey = iteratee(a);
+    const bKey = iteratee(b);
+    if (aKey < bKey) {
+      return -1;
+    } else if (aKey > bKey) {
+      return 1;
+    }
+    return 0;
+  });

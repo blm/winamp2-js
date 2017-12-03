@@ -1,9 +1,34 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 
 import classnames from "classnames";
 
 import "../../css/context-menu.css";
+
+class Portal extends React.Component {
+  constructor(props) {
+    super(props);
+    this._node = document.createElement("div");
+    document.body.appendChild(this._node);
+  }
+
+  componentWillUnmount() {
+    document.body.removeChild(this._node);
+  }
+
+  render() {
+    const style = {
+      position: "absolute",
+      top: this.props.top,
+      left: this.props.left
+    };
+    return createPortal(
+      <div style={style}>{this.props.children}</div>,
+      this._node
+    );
+  }
+}
 
 export const Hr = () => (
   <li className="hr">
@@ -57,13 +82,22 @@ export class ContextMenu extends React.Component {
   }
 
   _handleGlobalClick(e) {
-    if (this.state.selected && !this.handleNode.contains(e.target)) {
+    if (
+      this.state.selected &&
+      // Not sure how, but it's possible for this to get called when handleNode is null/undefined.
+      // https://sentry.io/share/issue/2066cd79f21e4f279791319f4d2ea35d/
+      this.handleNode &&
+      !this.handleNode.contains(e.target)
+    ) {
       this.setState({ selected: false });
     }
   }
 
   render() {
     const { handle, children, top, bottom, ...passThroughProps } = this.props;
+    const rect = this.handleNode
+      ? this.handleNode.getBoundingClientRect()
+      : { top: 0, left: 0 };
     return (
       <div {...passThroughProps}>
         <div
@@ -75,9 +109,11 @@ export class ContextMenu extends React.Component {
           {handle}
         </div>
         {this.state.selected && (
-          <div className={classnames({ top, bottom })}>
-            <ul id="context-menu">{children}</ul>
-          </div>
+          <Portal top={rect.top} left={rect.left}>
+            <ul id="context-menu" className={classnames({ top, bottom })}>
+              {children}
+            </ul>
+          </Portal>
         )}
       </div>
     );

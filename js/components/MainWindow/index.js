@@ -4,6 +4,7 @@ import classnames from "classnames";
 
 import { WINDOWS } from "../../constants";
 
+import DropTarget from "../DropTarget";
 import MiniTime from "../MiniTime";
 
 import ActionButtons from "./ActionButtons";
@@ -28,31 +29,16 @@ import MainVolume from "./MainVolume";
 
 import { SET_FOCUSED_WINDOW } from "../../actionTypes";
 
-import { loadFileFromReference } from "../../actionCreators";
-
 import "../../../css/main-window.css";
 
 export class MainWindow extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
-    this.handleDrop = this.handleDrop.bind(this);
   }
 
   handleClick() {
     this.props.setFocus();
-  }
-
-  supress(e) {
-    e.stopPropagation();
-    e.preventDefault();
-  }
-
-  handleDrop(e) {
-    this.supress(e);
-    const { files } = e.dataTransfer;
-    // TODO: Move this to an actionCreator
-    this.props.dispatch(loadFileFromReference(files[0]));
   }
 
   render() {
@@ -81,13 +67,10 @@ export class MainWindow extends React.Component {
     });
 
     return (
-      <div
+      <DropTarget
         id="main-window"
         className={className}
         onMouseDown={this.handleClick}
-        onDragEnter={this.supress}
-        onDragOver={this.supress}
-        onDrop={this.handleDrop}
       >
         <div id="title-bar" className="selected title-bard draggable">
           <MainContextMenu fileInput={this.props.fileInput} />
@@ -98,7 +81,7 @@ export class MainWindow extends React.Component {
         </div>
         <div className="status">
           <ClutterBar />
-          <div id="play-pause" />
+          {!working && <div id="play-pause" />}
           <div
             id="work-indicator"
             className={classnames({ selected: working })}
@@ -131,7 +114,7 @@ export class MainWindow extends React.Component {
           href="https://github.com/captbaritone/winamp2-js"
           title="About"
         />
-      </div>
+      </DropTarget>
     );
   }
 }
@@ -145,9 +128,7 @@ const mapStateToProps = state => {
   return { status, loading, doubled, shade, llama, working, focused };
 };
 
-const mapDispatchToProps = dispatch => ({
-  setFocus: () => {
-    dispatch({ type: SET_FOCUSED_WINDOW, window: WINDOWS.MAIN });
-  }
-});
+const mapDispatchToProps = {
+  setFocus: () => ({ type: SET_FOCUSED_WINDOW, window: WINDOWS.MAIN })
+};
 export default connect(mapStateToProps, mapDispatchToProps)(MainWindow);

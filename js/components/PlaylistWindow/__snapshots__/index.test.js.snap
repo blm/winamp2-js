@@ -4,83 +4,374 @@ exports[`PlaylistWindow renders to snapshot 1`] = `
 <div
   className="window draggable"
   id="playlist-window"
+  onDragEnter={[Function]}
+  onDragOver={[Function]}
+  onDrop={[Function]}
   onMouseDown={[Function]}
   style={
     Object {
       "backgroundColor": undefined,
       "color": undefined,
+      "fontFamily": "undefined, Arial, sans-serif",
+      "height": "116px",
+      "width": "275px",
     }
   }
 >
   <div
-    className="playlist-left"
+    className="playlist-top draggable"
   >
     <div
-      className="playlist-right"
+      className="playlist-top-left draggable"
+    />
+    <div
+      className="playlist-top-title draggable"
+    />
+    <div
+      className="playlist-top-right draggable"
     >
       <div
-        className="playlist-top title-bar draggable"
-      >
-        <div
-          className="playlist-top-left draggable"
-        />
-        <div
-          className="playlist-top-title draggable"
-        />
-        <div
-          className="playlist-top-right draggable"
-        >
-          <div
-            id="close-playlist"
-          />
-          <div
-            id="shade-playlist"
-          />
-        </div>
-      </div>
-      <div
-        className="playlist-scrollbar"
+        id="playlist-shade-button"
+        onClick={[Function]}
       />
       <div
-        className="playlist-bottom"
+        id="playlist-close-button"
+        onClick={[Function]}
+      />
+    </div>
+  </div>
+  <div
+    className="playlist-middle draggable"
+  >
+    <div
+      className="playlist-middle-left draggable"
+    />
+    <div
+      className="playlist-middle-center"
+    >
+      <div
+        className="playlist-tracks"
       >
-        <div
-          className="playlist-bottom-left"
-        />
-        <div
-          className="playlist-visualizer"
-        />
-        <div
-          className="playlist-bottom-right"
-        >
+        <div>
           <div
-            className="playlist-action-buttons"
+            className="playlist-track current"
+            onClick={[Function]}
+            onContextMenu={[Function]}
+            style={
+              Object {
+                "backgroundColor": null,
+                "color": undefined,
+              }
+            }
           >
             <div
-              className="playlist-previous-button"
-            />
+              className="playlist-track-number"
+            >
+              1
+              .
+            </div>
             <div
-              className="playlist-play-button"
-              onClick={[Function]}
-            />
+              className="playlist-track-title"
+            >
+              <span>
+                DJ Mike Llama
+                 - 
+                Llama Whipping Intro
+              </span>
+            </div>
             <div
-              className="playlist-pause-button"
-              onClick={[Function]}
-            />
+              className="playlist-track-duration"
+            >
+              03:41
+            </div>
+          </div>
+          <div
+            className="playlist-track"
+            onClick={[Function]}
+            onContextMenu={[Function]}
+            style={
+              Object {
+                "backgroundColor": null,
+                "color": null,
+              }
+            }
+          >
             <div
-              className="playlist-stop-button"
-              onClick={[Function]}
-            />
+              className="playlist-track-number"
+            >
+              2
+              .
+            </div>
             <div
-              className="playlist-next-butto"
-            />
+              className="playlist-track-title"
+            >
+              <span>
+                Marilyn Manson
+                 - 
+                Rock Is Dead
+              </span>
+            </div>
             <div
-              className="playlist-eject-button"
-              onClick={[Function]}
-            />
+              className="playlist-track-duration"
+            >
+              03:41
+            </div>
+          </div>
+          <div
+            className="playlist-track selected"
+            onClick={[Function]}
+            onContextMenu={[Function]}
+            style={
+              Object {
+                "backgroundColor": undefined,
+                "color": null,
+              }
+            }
+          >
+            <div
+              className="playlist-track-number"
+            >
+              3
+              .
+            </div>
+            <div
+              className="playlist-track-title"
+            >
+              <span>
+                Propellerheads
+                 - 
+                Spybreak! (Short One)
+              </span>
+            </div>
+            <div
+              className="playlist-track-duration"
+            >
+              02:51
+            </div>
+          </div>
+          <div
+            className="playlist-track"
+            onClick={[Function]}
+            onContextMenu={[Function]}
+            style={
+              Object {
+                "backgroundColor": null,
+                "color": null,
+              }
+            }
+          >
+            <div
+              className="playlist-track-number"
+            >
+              4
+              .
+            </div>
+            <div
+              className="playlist-track-title"
+            >
+              <span>
+                Rob D
+                 - 
+                Clubbed to Death
+              </span>
+            </div>
+            <div
+              className="playlist-track-duration"
+            >
+              03:35
+            </div>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      className="playlist-middle-right draggable"
+    >
+      <div
+        className="rc-slider rc-slider-vertical playlist-scrollbar"
+        onMouseDown={[Function]}
+        onTouchStart={[Function]}
+        style={undefined}
+      >
+        <div
+          className="rc-slider-rail"
+          style={Object {}}
+        />
+        <div
+          className="rc-slider-track"
+          style={
+            Object {
+              "bottom": "0%",
+              "height": "0%",
+              "visibility": "visible",
+            }
+          }
+        />
+        <div
+          className="rc-slider-step"
+        />
+        <div
+          className="playlist-scrollbar-handle"
+        />
+        <div
+          className="rc-slider-mark"
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className="playlist-bottom draggable"
+  >
+    <div
+      className="playlist-bottom-left draggable"
+    >
+      <div
+        className="playlist-menu"
+        id="playlist-add-menu"
+        onClick={[Function]}
+      >
+        <div
+          className="bar"
+        />
+      </div>
+      <div
+        className="playlist-menu"
+        id="playlist-remove-menu"
+        onClick={[Function]}
+      >
+        <div
+          className="bar"
+        />
+      </div>
+      <div
+        className="playlist-menu"
+        id="playlist-selection-menu"
+        onClick={[Function]}
+      >
+        <div
+          className="bar"
+        />
+      </div>
+      <div
+        className="playlist-menu"
+        id="playlist-misc-menu"
+        onClick={[Function]}
+      >
+        <div
+          className="bar"
+        />
+      </div>
+    </div>
+    <div
+      className="playlist-bottom-center draggable"
+    />
+    <div
+      className="playlist-bottom-right draggable"
+    >
+      <div
+        className="playlist-visualizer"
+        onClick={[Function]}
+      />
+      <div
+        className="playlist-running-time-display draggable"
+      >
+        <div>
+          <div
+            className=" character character-48"
+          >
+            0
+          </div>
+          <div
+            className=" character character-50"
+          >
+            2
+          </div>
+          <div
+            className=" character character-58"
+          >
+            :
+          </div>
+          <div
+            className=" character character-53"
+          >
+            5
+          </div>
+          <div
+            className=" character character-49"
+          >
+            1
+          </div>
+          <div
+            className=" character character-47"
+          >
+            /
+          </div>
+          <div
+            className=" character character-50"
+          >
+            2
+          </div>
+          <div
+            className=" character character-55"
+          >
+            7
+          </div>
+          <div
+            className=" character character-58"
+          >
+            :
+          </div>
+          <div
+            className=" character character-49"
+          >
+            1
+          </div>
+          <div
+            className=" character character-56"
+          >
+            8
+          </div>
+        </div>
+      </div>
+      <div
+        className="playlist-action-buttons"
+      >
+        <div
+          className="playlist-previous-button"
+        />
+        <div
+          className="playlist-play-button"
+          onClick={[Function]}
+        />
+        <div
+          className="playlist-pause-button"
+          onClick={[Function]}
+        />
+        <div
+          className="playlist-stop-button"
+          onClick={[Function]}
+        />
+        <div
+          className="playlist-next-button"
+        />
+        <div
+          className="playlist-eject-button"
+          onClick={[Function]}
+        />
+      </div>
+      <div
+        className="playlist-menu"
+        id="playlist-list-menu"
+        onClick={[Function]}
+      >
+        <div
+          className="bar"
+        />
+      </div>
+      <div
+        id="playlist-resize-target"
+        onMouseDown={[Function]}
+      />
     </div>
   </div>
 </div>

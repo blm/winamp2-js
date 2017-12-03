@@ -5,9 +5,11 @@ import MainWindow from "./MainWindow";
 import PlaylistWindow from "./PlaylistWindow";
 import EqualizerWindow from "./EqualizerWindow";
 import Skin from "./Skin";
-import { equalizerEnabled, playlistEnabled } from "../config";
+import { playlistEnabled } from "../config";
 
-const App = ({ winamp, loading, closed, equalizer, playlist }) => {
+import "../../css/winamp.css";
+
+const App = ({ media, fileInput, loading, closed, equalizer, playlist }) => {
   if (closed) {
     return null;
   }
@@ -24,16 +26,12 @@ const App = ({ winamp, loading, closed, equalizer, playlist }) => {
   }
   return (
     <div id="loaded">
-      <Skin>
-        {/* This is not technically kosher, since <style> tags should be in
-          the <head>, but browsers don't really care... */}
-      </Skin>
+      <Skin />
       <WindowManager>
-        <MainWindow fileInput={winamp.fileInput} mediaPlayer={winamp.media} />
-        {equalizerEnabled &&
-        equalizer && <EqualizerWindow fileInput={winamp.fileInput} />}
+        <MainWindow fileInput={fileInput} mediaPlayer={media} />
+        {equalizer && <EqualizerWindow fileInput={fileInput} />}
         {playlistEnabled &&
-        playlist && <PlaylistWindow fileInput={winamp.fileInput} />}
+        playlist && <PlaylistWindow fileInput={fileInput} />}
       </WindowManager>
     </div>
   );

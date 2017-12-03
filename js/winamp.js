@@ -1,41 +1,68 @@
-// UI and App logic
+import React from "react";
+import { render } from "react-dom";
+import { Provider } from "react-redux";
+
+import getStore from "./store";
+import App from "./components/App";
+import Hotkeys from "./hotkeys";
 import Media from "./media";
 import {
   setSkinFromUrl,
-  setVolume,
-  setPreamp,
-  setBalance,
   loadMediaFromUrl,
   loadFileFromReference
 } from "./actionCreators";
-import "../css/winamp.css";
 
-const fileInput = document.createElement("input");
-fileInput.type = "file";
-fileInput.style.display = "none";
+import { SET_AVALIABLE_SKINS } from "./actionTypes";
 
-export default {
-  media: new Media(fileInput),
-  fileInput: fileInput,
-  init: function(options) {
+class Winamp {
+  constructor(options) {
+    this.options = options;
+
+    this.fileInput = document.createElement("input");
+    this.fileInput.type = "file";
+    this.fileInput.style.display = "none";
+
+    this.media = new Media(this.fileInput);
+    this.store = getStore(this.media, this.options.__initialState);
+  }
+  render(node) {
+    render(
+      <Provider store={this.store}>
+        <App fileInput={this.fileInput} media={this.media} />
+      </Provider>,
+      node
+    );
+
     this.fileInput.addEventListener("change", e => {
-      this.dispatch(loadFileFromReference(e.target.files[0]));
+      if (e.target.files[0]) {
+        this.store.dispatch(loadFileFromReference(e.target.files[0], true));
+      }
     });
 
-    this.dispatch(setVolume(options.volume));
-    this.dispatch(setBalance(options.balance));
-    this.dispatch(setPreamp(50));
-    if (options.mediaFile.url !== null) {
-      this.dispatch(
-        loadMediaFromUrl(options.mediaFile.url, options.mediaFile.name)
+    if (this.options.initialTrack && this.options.initialTrack.url) {
+      this.store.dispatch(
+        loadMediaFromUrl(
+          this.options.initialTrack.url,
+          this.options.initialTrack.name,
+          false
+        )
       );
     }
-    this.dispatch(setSkinFromUrl(options.skinUrl));
-    return this;
-  },
+    if (this.options.avaliableSkins) {
+      this.store.dispatch({
+        type: SET_AVALIABLE_SKINS,
+        skins: this.options.avaliableSkins
+      });
+    }
+    this.store.dispatch(setSkinFromUrl(this.options.initialSkin.url));
 
-  /* Functions */
-  seekForwardBy: function(seconds) {
-    this.media.seekToTime(this.media.timeElapsed() + seconds);
+    new Hotkeys(this.fileInput, this.store);
   }
-};
+
+  loadTrackUrl(url, name) {
+    this.store.dispatch(loadMediaFromUrl(url, name));
+  }
+}
+
+export default Winamp;
+module.exports = Winamp;

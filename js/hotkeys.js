@@ -7,7 +7,8 @@ import {
   toggleShuffle,
   openFileDialog,
   seekForward,
-  seekBackward
+  seekBackward,
+  reverseList
 } from "./actionCreators";
 
 import {
@@ -16,7 +17,9 @@ import {
   TOGGLE_LLAMA_MODE
 } from "./actionTypes";
 
-export default function(winamp, { dispatch }) {
+import { arraysAreEqual } from "./utils";
+
+export default function(fileInput, { dispatch }) {
   let keylog = [];
   const trigger = [
     78, // N
@@ -34,8 +37,12 @@ export default function(winamp, { dispatch }) {
       switch (e.keyCode) {
         case 68: // CTRL+D
           dispatch({ type: TOGGLE_DOUBLESIZE_MODE });
+          e.preventDefault(); // Supress the "Bookmark" action on windows.
           break;
         case 76: // CTRL+L FIXME
+          break;
+        case 82: // CTRL+R
+          dispatch(reverseList());
           break;
         case 84: // CTRL+T
           dispatch({ type: TOGGLE_TIME_MODE });
@@ -62,7 +69,7 @@ export default function(winamp, { dispatch }) {
           dispatch(pause());
           break;
         case 76: // L
-          dispatch(openFileDialog(winamp.fileInput));
+          dispatch(openFileDialog(fileInput));
           break;
         case 82: // R
           dispatch(toggleRepeat());
@@ -80,7 +87,7 @@ export default function(winamp, { dispatch }) {
           // Previous
           break;
         case 96: // numpad 0
-          dispatch(openFileDialog(winamp.fileInput));
+          dispatch(openFileDialog(fileInput));
           break;
         case 97: // numpad 1
           // Previous (10 tracks)
@@ -113,11 +120,14 @@ export default function(winamp, { dispatch }) {
     }
 
     // Easter Egg
-    keylog.push(e.keyCode);
-    keylog = keylog.slice(-10);
-    // TODO: Find a less stupid way to compare arrays.
-    if (keylog.toString() === trigger.toString()) {
-      dispatch({ type: TOGGLE_LLAMA_MODE });
+
+    // Ignore escape. Usually this get's swallowed by the browser, but not always.
+    if (e.keyCode !== 27) {
+      keylog.push(e.keyCode);
+      keylog = keylog.slice(-8);
+      if (arraysAreEqual(keylog, trigger)) {
+        dispatch({ type: TOGGLE_LLAMA_MODE });
+      }
     }
   });
 }
